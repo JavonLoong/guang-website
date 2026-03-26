@@ -25,10 +25,10 @@ const D = {};
 
 function initDOM() {
   D.views = document.querySelectorAll('.page');
-  D.navLinks = document.querySelectorAll('.nav-link[data-view]');
-  D.recentGrid = document.getElementById('recentGrid');
-  D.notesGrid = document.getElementById('notesGrid');
-  D.tagFilters = document.getElementById('tagFilters');
+  D.navLinks = document.querySelectorAll('.nav-link[data-page]');
+  D.recentGrid = document.getElementById('recentArticles');
+  D.notesGrid = document.getElementById('articlesGrid');
+  D.tagFilters = document.getElementById('filterBar');
   
   // 弹窗
   D.modalOverlay = document.getElementById('modalOverlay');
@@ -84,10 +84,11 @@ function switchView(viewName) {
   if (state.currentView === viewName) return;
   
   D.views.forEach(v => v.classList.remove('active'));
-  document.getElementById(`${viewName}View`).classList.add('active');
+  const targetPage = document.getElementById(`page-${viewName}`);
+  if (targetPage) targetPage.classList.add('active');
   
   D.navLinks.forEach(l => {
-    l.classList.toggle('active', l.dataset.view === viewName);
+    l.classList.toggle('active', l.dataset.page === viewName);
   });
   
   state.currentView = viewName;
@@ -104,7 +105,7 @@ function bindGlobalEvents() {
   D.navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      switchView(link.dataset.view);
+      switchView(link.dataset.page);
     });
   });
 
@@ -158,7 +159,7 @@ function renderHome() {
   renderArticleCards(state.articles.slice(0, 3), D.recentGrid);
   
   // 更新统计号
-  const totalArts = document.getElementById('totalArticles');
+  const totalArts = document.getElementById('statArticles');
   if (totalArts) {
     let count = 0;
     const interval = setInterval(() => {
