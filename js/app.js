@@ -1,494 +1,496 @@
-// ============================================
-// 个人网站 - 核心逻辑
-// ============================================
-
-// 全局状态
+/* ============================================
+   应用状态管理
+   ============================================ */
 const state = {
-  articles: [],
-  currentFilter: '全部',
-  currentPage: 'home',
+  articles: [],        // 所有文章数据
+  currentTag: 'all',   // 当前过滤的标签
+  currentView: 'home', // 当前视图 (home, notes, search)
+  particles: [],       // 粒子动画数组
+  mouse: { x: null, y: null, radius: 100 },
+  currentViewingArticle: null // 当前弹窗查阅的文章对象
 };
 
 // ============================================
 // 初始化
 // ============================================
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadArticles();
-  initNavigation();
+document.addEventListener('DOMContentLoaded', () => {
+  initDOM();
   initParticles();
-  initScrollEffects();
-  renderHomePage();
-  renderNotesPage();
-  renderSearchPage();
+  loadData();
+  bindGlobalEvents();
 });
 
+// DOM 元素缓存
+const D = {};
+
+function initDOM() {
+  D.views = document.querySelectorAll('.page');
+  D.navLinks = document.querySelectorAll('.nav-link[data-view]');
+  D.recentGrid = document.getElementById('recentGrid');
+  D.notesGrid = document.getElementById('notesGrid');
+  D.tagFilters = document.getElementById('tagFilters');
+  
+  // 弹窗
+  D.modalOverlay = document.getElementById('modalOverlay');
+  D.modalClose = document.querySelector('.modal-close');
+  D.modalDate = document.getElementById('modalDate');
+  D.modalTitle = document.getElementById('modalTitle');
+  D.modalTags = document.getElementById('modalTags');
+  D.modalBody = document.getElementById('modalBody');
+  
+  // 历史版本
+  D.modalHistoryBtn = document.getElementById('modalHistoryBtn');
+  D.modalSidebar = document.getElementById('modalSidebar');
+  D.modalTimeline = document.getElementById('modalTimeline');
+  D.modalVersionNotice = document.getElementById('modalVersionNotice');
+  D.modalCurrentVersion = document.getElementById('modalCurrentVersion');
+  D.modalCurrentTime = document.getElementById('modalCurrentTime');
+  D.modalRestoreBtn = document.getElementById('modalRestoreBtn');
+
+  // 搜索
+  D.searchInput = document.getElementById('searchInput');
+  D.searchResults = document.getElementById('searchResults');
+}
+
 // ============================================
-// 数据加载
+// 数据加载与处理
 // ============================================
-async function loadArticles() {
+async function loadData() {
   try {
-    const response = await fetch('data/articles.json');
-    state.articles = await response.json();
-  } catch (e) {
-    console.warn('无法加载文章数据，使用空数组', e);
-    state.articles = [];
+    const res = await fetch('data/articles.json');
+    if (!res.ok) throw new Error('数据加载失败');
+    state.articles = await res.json();
+    
+    // 按最后更新时间降序排列
+    state.articles.sort((a, b) => {
+      const d1 = new Date(b.updated_at || b.date);
+      const d2 = new Date(a.updated_at || a.date);
+      return d1 - d2;
+    });
+
+    renderHome();
+    renderNotes();
+    renderTags();
+  } catch (err) {
+    console.error('加载文章数据失败:', err);
+    if (D.recentGrid) D.recentGrid.innerHTML = '<div class="empty-state">数据加载失败，请检查网络或文件。</div>';
   }
 }
 
 // ============================================
-// 导航与路由
+// 视图切换与导航
 // ============================================
-function initNavigation() {
-  const navLinks = document.querySelectorAll('.nav-link');
-  const menuToggle = document.getElementById('menuToggle');
-  const navLinksContainer = document.getElementById('navLinks');
+function switchView(viewName) {
+  if (state.currentView === viewName) return;
+  
+  D.views.forEach(v => v.classList.remove('active'));
+  document.getElementById(`${viewName}View`).classList.add('active');
+  
+  D.navLinks.forEach(l => {
+    l.classList.toggle('active', l.dataset.view === viewName);
+  });
+  
+  state.currentView = viewName;
+  window.scrollTo(0, 0);
+  
+  // 切回搜索页时聚焦
+  if (viewName === 'search' && D.searchInput) {
+    setTimeout(() => D.searchInput.focus(), 100);
+  }
+}
 
-  navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const page = link.dataset.page;
-      navigateTo(page);
-      navLinksContainer.classList.remove('open');
+function bindGlobalEvents() {
+  // 导航路由
+  D.navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchView(link.dataset.view);
     });
   });
 
-  if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-      navLinksContainer.classList.toggle('open');
+  // 主页CTA按钮
+  const ctaBtn = document.getElementById('startExploreBtn');
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', () => switchView('notes'));
+  }
+
+  // 搜索监听
+  if (D.searchInput) {
+    let debounceTimer;
+    D.searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => performSearch(e.target.value.trim()), 300);
+    });
+  }
+  
+  // 弹窗关闭
+  if (D.modalClose) D.modalClose.addEventListener('click', closeModal);
+  if (D.modalOverlay) {
+    D.modalOverlay.addEventListener('click', (e) => {
+      if (e.target === D.modalOverlay) closeModal();
     });
   }
 
-  // 品牌点击回首页
-  const brand = document.querySelector('.nav-brand');
-  if (brand) {
-    brand.addEventListener('click', () => navigateTo('home'));
-  }
-}
-
-function navigateTo(page) {
-  state.currentPage = page;
-
-  // 更新页面显示
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById(`page-${page}`);
-  if (target) target.classList.add('active');
-
-  // 更新导航高亮
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.classList.toggle('active', link.dataset.page === page);
-  });
-
-  // 滚动到页面顶部
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  // 如进入搜索页，聚焦搜索框
-  if (page === 'search') {
-    setTimeout(() => {
-      const input = document.getElementById('searchInput');
-      if (input) input.focus();
-    }, 400);
-  }
-}
-
-// ============================================
-// 滚动效果
-// ============================================
-function initScrollEffects() {
-  const navbar = document.querySelector('.navbar');
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 50);
-  });
-}
-
-// ============================================
-// 首页渲染
-// ============================================
-function renderHomePage() {
-  // 更新统计数据
-  const articleCount = state.articles.length;
-  const tagSet = new Set();
-  state.articles.forEach(a => a.tags.forEach(t => tagSet.add(t)));
-
-  const countEl = document.getElementById('statArticles');
-  const tagCountEl = document.getElementById('statTags');
-  if (countEl) countEl.textContent = articleCount;
-  if (tagCountEl) tagCountEl.textContent = tagSet.size;
-
-  // 渲染最近学习
-  const recentGrid = document.getElementById('recentArticles');
-  if (recentGrid) {
-    const recent = [...state.articles].sort((a, b) => 
-      new Date(b.date) - new Date(a.date)
-    ).slice(0, 3);
-    recentGrid.innerHTML = recent.map(a => createArticleCard(a)).join('');
-    bindCardEvents(recentGrid);
-  }
-}
-
-// ============================================
-// 学习笔记页
-// ============================================
-function renderNotesPage() {
-  renderFilterBar();
-  renderArticles();
-}
-
-function renderFilterBar() {
-  const filterBar = document.getElementById('filterBar');
-  if (!filterBar) return;
-
-  const allTags = new Set();
-  state.articles.forEach(a => a.tags.forEach(t => allTags.add(t)));
-
-  const tags = ['全部', ...allTags];
-  filterBar.innerHTML = tags.map(tag => `
-    <button class="filter-tag ${tag === state.currentFilter ? 'active' : ''}" 
-            data-tag="${tag}">${tag}</button>
-  `).join('');
-
-  filterBar.querySelectorAll('.filter-tag').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.currentFilter = btn.dataset.tag;
-      renderFilterBar();
-      renderArticles();
+  // 历史版本面板切换
+  if (D.modalHistoryBtn) {
+    D.modalHistoryBtn.addEventListener('click', () => {
+      D.modalHistoryBtn.classList.toggle('active');
+      D.modalSidebar.classList.toggle('active');
     });
-  });
+  }
+
+  // 返回最新版本按钮
+  if (D.modalRestoreBtn) {
+    D.modalRestoreBtn.addEventListener('click', () => {
+      const firstItem = D.modalTimeline.querySelector('.timeline-item');
+      if (firstItem) firstItem.click();
+    });
+  }
 }
 
-function renderArticles() {
-  const grid = document.getElementById('articlesGrid');
-  if (!grid) return;
+// ============================================
+// 渲染逻辑
+// ============================================
 
-  const filtered = state.currentFilter === '全部'
-    ? state.articles
-    : state.articles.filter(a => a.tags.includes(state.currentFilter));
+function renderHome() {
+  if (!D.recentGrid) return;
+  // 首页展示最近3篇
+  renderArticleCards(state.articles.slice(0, 3), D.recentGrid);
+  
+  // 更新统计号
+  const totalArts = document.getElementById('totalArticles');
+  if (totalArts) {
+    let count = 0;
+    const interval = setInterval(() => {
+      count++;
+      totalArts.textContent = count;
+      if (count >= state.articles.length) clearInterval(interval);
+    }, 50);
+  }
+}
 
+function renderNotes() {
+  if (!D.notesGrid) return;
+  const filtered = state.currentTag === 'all' 
+    ? state.articles 
+    : state.articles.filter(a => a.tags.includes(state.currentTag));
+    
   if (filtered.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state" style="grid-column: 1/-1">
-        <div class="empty-icon">📝</div>
-        <div class="empty-text">还没有这个分类的笔记</div>
-        <div class="empty-hint">试试其他标签吧</div>
+    D.notesGrid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1/-1; text-align: center;">
+        <div class="empty-icon">🍃</div>
+        <div class="empty-text">该分类下暂无笔记</div>
       </div>
     `;
     return;
   }
-
-  grid.innerHTML = filtered.map(a => createArticleCard(a)).join('');
-  bindCardEvents(grid);
+  renderArticleCards(filtered, D.notesGrid);
 }
 
-// ============================================
-// 文章卡片
-// ============================================
-function createArticleCard(article) {
-  return `
-    <div class="article-card" data-id="${article.id}">
-      <div class="article-date">
-        <span>📅</span> ${article.date}
-      </div>
-      <h3 class="article-title">${article.title}</h3>
-      <p class="article-summary">${article.summary}</p>
-      <div class="article-tags">
-        ${article.tags.map(t => `<span class="article-tag">${t}</span>`).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function bindCardEvents(container) {
-  container.querySelectorAll('.article-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const id = parseInt(card.dataset.id);
-      const article = state.articles.find(a => a.id === id);
-      if (article) openModal(article);
+function renderTags() {
+  if (!D.tagFilters) return;
+  
+  // 全局提取tags
+  const tagSet = new Set();
+  state.articles.forEach(a => a.tags.forEach(t => tagSet.add(t)));
+  const tags = ['all', ...Array.from(tagSet)];
+  
+  D.tagFilters.innerHTML = tags.map(tag => {
+    const label = tag === 'all' ? '全部内容' : tag;
+    return `<button class="filter-tag ${state.currentTag === tag ? 'active' : ''}" data-tag="${tag}">${label}</button>`;
+  }).join('');
+  
+  // 绑定标签切换
+  D.tagFilters.querySelectorAll('.filter-tag').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      state.currentTag = e.target.dataset.tag;
+      renderTags(); // 更新激活状态
+      renderNotes(); // 更新列表
     });
   });
 }
 
+// 通用卡片渲染
+function renderArticleCards(articles, container, highlightText = "") {
+  if (!container) return;
+  container.innerHTML = articles.map(article => {
+    const showTitle = highlightText ? highlightMatch(article.title, highlightText) : article.title;
+    const showSummary = highlightText ? highlightMatch(article.summary, highlightText) : article.summary;
+    
+    const displayDate = article.updated_at || article.date;
+    const hasHistory = article.history && article.history.length > 0;
+    
+    return `
+      <article class="article-card" onclick="openArticle(${article.id})">
+        <div class="article-date-row">
+          <span class="article-date">🕒 ${displayDate}</span>
+          ${hasHistory ? '<span class="article-update-badge">拥有历史版本</span>' : ''}
+        </div>
+        <h3 class="article-title">${showTitle}</h3>
+        <p class="article-summary">${showSummary}</p>
+        <div class="article-footer">
+          <div class="article-tags">
+            ${article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join('')}
+          </div>
+          <span class="article-read-more">阅读详情 →</span>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
 // ============================================
-// 文章详情弹窗
+// 详情弹窗与历史版本渲染
 // ============================================
-function openModal(article) {
-  const overlay = document.getElementById('modalOverlay');
-  if (!overlay) return;
-
-  document.getElementById('modalDate').textContent = article.date;
-  document.getElementById('modalTitle').textContent = article.title;
-  document.getElementById('modalTags').innerHTML = 
-    article.tags.map(t => `<span class="article-tag">${t}</span>`).join('');
-  document.getElementById('modalBody').innerHTML = parseContent(article.content);
-
-  overlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
-
-  // 关闭事件
-  const closeBtn = overlay.querySelector('.modal-close');
-  const closeHandler = () => closeModal();
-  closeBtn.onclick = closeHandler;
-  overlay.onclick = (e) => {
-    if (e.target === overlay) closeModal();
-  };
+window.openArticle = function(id) {
+  const article = state.articles.find(a => a.id === id);
+  if (!article) return;
   
-  // ESC 关闭
-  const escHandler = (e) => {
-    if (e.key === 'Escape') {
-      closeModal();
-      document.removeEventListener('keydown', escHandler);
-    }
-  };
-  document.addEventListener('keydown', escHandler);
+  state.currentViewingArticle = article;
+  
+  // 重置 UI 状态
+  D.modalVersionNotice.classList.add('hidden');
+  D.modalSidebar.classList.remove('active');
+  D.modalHistoryBtn.classList.remove('active');
+  
+  // 检查历史版本
+  if (article.history && article.history.length > 0) {
+    D.modalHistoryBtn.style.display = 'flex';
+    renderTimeline(article);
+  } else {
+    D.modalHistoryBtn.style.display = 'none';
+    D.modalSidebar.style.display = 'none';
+  }
+
+  // 渲染正文
+  renderArticleContent(article.title, article.updated_at || article.date, article.tags, article.content);
+  
+  D.modalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+
+function renderArticleContent(title, dateStr, tags, textContent) {
+  D.modalTitle.textContent = title;
+  D.modalDate.textContent = `当前版本：${dateStr}`;
+  D.modalTags.innerHTML = tags.map(tag => `<span class="article-tag">${tag}</span>`).join('');
+  
+  // 简易 Markdown 解析 (标题, 加粗, 换行, 列表段)
+  let html = textContent;
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+  html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+  // 包裹列表
+  html = html.replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>');
+  // 段落
+  html = html.replace(/^(?!<[hu]|<li)(.+)$/gim, '<p>$1</p>');
+  
+  D.modalBody.innerHTML = html;
+}
+
+function renderTimeline(article) {
+  D.modalSidebar.style.display = 'block';
+  
+  const versions = [
+    {
+      version: "Latest",
+      time: article.updated_at || article.date,
+      description: "当前最新版本",
+      isCurrent: true,
+      title: article.title,
+      content: article.content
+    },
+    ...article.history.map(h => ({
+      version: h.version,
+      time: h.time,
+      description: h.description,
+      isCurrent: false,
+      title: h.title,
+      content: h.content
+    }))
+  ];
+  
+  // 倒序
+  versions.sort((a, b) => new Date(b.time) - new Date(a.time));
+  
+  D.modalTimeline.innerHTML = versions.map((v, idx) => `
+    <div class="timeline-item ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+      <div class="tl-time">${v.time} &nbsp;<span style="color:var(--primary-light);font-size:0.75rem">${v.version}</span></div>
+      <div class="tl-title">${v.title}</div>
+      <div class="tl-desc">${v.description}</div>
+    </div>
+  `).join('');
+  
+  // 绑定点击切换版本
+  D.modalTimeline.querySelectorAll('.timeline-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const idx = parseInt(this.getAttribute('data-idx'));
+      const ver = versions[idx];
+      
+      D.modalTimeline.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
+      this.classList.add('active');
+      
+      renderArticleContent(ver.title, ver.time, article.tags, ver.content);
+      
+      if (!ver.isCurrent) {
+        D.modalVersionNotice.classList.remove('hidden');
+        D.modalCurrentVersion.textContent = ver.version;
+        D.modalCurrentTime.textContent = ver.time;
+      } else {
+        D.modalVersionNotice.classList.add('hidden');
+      }
+    });
+  });
 }
 
 function closeModal() {
-  const overlay = document.getElementById('modalOverlay');
-  if (overlay) {
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-}
-
-function parseContent(content) {
-  // 简易 Markdown 解析
-  return content
-    .split('\n\n')
-    .map(block => {
-      block = block.trim();
-      if (!block) return '';
-      
-      if (block.startsWith('## ')) {
-        return `<h2>${block.slice(3)}</h2>`;
-      }
-      
-      // 处理列表
-      if (block.includes('\n')) {
-        const lines = block.split('\n');
-        const isList = lines.every(l => /^[\d]+\.\s|^-\s/.test(l.trim()));
-        if (isList) {
-          const isOrdered = /^\d+\./.test(lines[0].trim());
-          const tag = isOrdered ? 'ol' : 'ul';
-          const items = lines.map(l => 
-            `<li>${l.replace(/^[\d]+\.\s|^-\s/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`
-          ).join('');
-          return `<${tag}>${items}</${tag}>`;
-        }
-      }
-      
-      // 行内格式
-      block = block.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      return `<p>${block}</p>`;
-    })
-    .join('');
+  D.modalOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+  state.currentViewingArticle = null;
+  D.modalSidebar.classList.remove('active');
+  D.modalHistoryBtn.classList.remove('active');
 }
 
 // ============================================
-// 搜索页
+// 搜索逻辑
 // ============================================
-function renderSearchPage() {
-  const searchInput = document.getElementById('searchInput');
-  const searchClear = document.getElementById('searchClear');
-  const hotTagsList = document.getElementById('hotTagsList');
-
-  if (!searchInput) return;
-
-  // 渲染热门标签
-  if (hotTagsList) {
-    const tagCounts = {};
-    state.articles.forEach(a => a.tags.forEach(t => {
-      tagCounts[t] = (tagCounts[t] || 0) + 1;
-    }));
-    const sortedTags = Object.entries(tagCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8);
-
-    hotTagsList.innerHTML = sortedTags.map(([tag]) => `
-      <button class="hot-tag" data-tag="${tag}">${tag}</button>
-    `).join('');
-
-    hotTagsList.querySelectorAll('.hot-tag').forEach(btn => {
-      btn.addEventListener('click', () => {
-        searchInput.value = btn.dataset.tag;
-        searchInput.dispatchEvent(new Event('input'));
-      });
-    });
-  }
-
-  // 搜索逻辑
-  let debounceTimer;
-  searchInput.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    const query = searchInput.value.trim();
-    
-    // 清除按钮
-    searchClear.classList.toggle('visible', query.length > 0);
-
-    debounceTimer = setTimeout(() => {
-      performSearch(query);
-    }, 200);
-  });
-
-  if (searchClear) {
-    searchClear.addEventListener('click', () => {
-      searchInput.value = '';
-      searchClear.classList.remove('visible');
-      performSearch('');
-      searchInput.focus();
-    });
-  }
-}
-
 function performSearch(query) {
-  const resultsContainer = document.getElementById('searchResults');
-  const resultsCount = document.getElementById('searchResultsCount');
-  if (!resultsContainer) return;
-
   if (!query) {
-    resultsContainer.innerHTML = '';
-    resultsCount.classList.remove('visible');
+    if (D.searchResults) D.searchResults.innerHTML = '';
     return;
   }
-
-  const lowerQuery = query.toLowerCase();
-  const results = state.articles.filter(a =>
-    a.title.toLowerCase().includes(lowerQuery) ||
-    a.summary.toLowerCase().includes(lowerQuery) ||
-    a.content.toLowerCase().includes(lowerQuery) ||
-    a.tags.some(t => t.toLowerCase().includes(lowerQuery))
+  
+  const q = query.toLowerCase();
+  const results = state.articles.filter(a => 
+    a.title.toLowerCase().includes(q) || 
+    a.summary.toLowerCase().includes(q) ||
+    a.content.toLowerCase().includes(q) ||
+    a.tags.some(t => t.toLowerCase().includes(q))
   );
-
-  resultsCount.textContent = `找到 ${results.length} 条结果`;
-  resultsCount.classList.add('visible');
-
+  
   if (results.length === 0) {
-    resultsContainer.innerHTML = `
-      <div class="empty-state">
+    D.searchResults.innerHTML = `
+      <div class="empty-state" style="text-align: center;">
         <div class="empty-icon">🔍</div>
-        <div class="empty-text">没有找到匹配的内容</div>
-        <div class="empty-hint">试试其他关键词吧</div>
+        <div class="empty-text">没有找到包含 "${query}" 的内容</div>
       </div>
     `;
     return;
   }
-
-  resultsContainer.innerHTML = results.map(a => {
-    const highlightedTitle = highlightText(a.title, query);
-    const highlightedSummary = highlightText(a.summary, query);
-    
-    return `
-      <div class="search-result-item" data-id="${a.id}">
-        <h3 class="search-result-title">${highlightedTitle}</h3>
-        <p class="search-result-summary">${highlightedSummary}</p>
-        <div class="article-tags">
-          ${a.tags.map(t => {
-            const isMatch = t.toLowerCase().includes(lowerQuery);
-            return `<span class="article-tag" style="${isMatch ? 'background: rgba(0,206,201,0.2); color: var(--accent-light);' : ''}">${t}</span>`;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // 点击搜索结果打开弹窗
-  resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const id = parseInt(item.dataset.id);
-      const article = state.articles.find(a => a.id === id);
-      if (article) openModal(article);
-    });
-  });
+  
+  renderArticleCards(results, D.searchResults, query);
 }
 
-function highlightText(text, query) {
+function highlightMatch(text, query) {
   if (!query) return text;
-  const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
   return text.replace(regex, '<span class="search-highlight">$1</span>');
 }
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 // ============================================
-// 粒子动画
+// 粒子背景动画 (Canvas)
 // ============================================
 function initParticles() {
   const canvas = document.getElementById('heroCanvas');
   if (!canvas) return;
-
   const ctx = canvas.getContext('2d');
-  let animationId;
-  let particles = [];
-
+  
   function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    state.mouse.x = e.clientX - rect.left;
+    state.mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('mouseleave', () => {
+    state.mouse.x = null;
+    state.mouse.y = null;
+  });
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 0.5;
+      this.baseX = this.x;
+      this.baseY = this.y;
+      this.density = (Math.random() * 30) + 1;
+      this.color = Math.random() > 0.5 ? 'rgba(108, 92, 231, 0.4)' : 'rgba(0, 206, 201, 0.4)';
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = (Math.random() - 0.5) * 0.5;
+    }
+    
+    update() {
+      if (state.mouse.x != null) {
+        let dx = state.mouse.x - this.x;
+        let dy = state.mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        let forceDirectionX = dx / distance;
+        let forceDirectionY = dy / distance;
+        let maxDistance = state.mouse.radius;
+        let force = (maxDistance - distance) / maxDistance;
+        let directionX = forceDirectionX * force * this.density;
+        let directionY = forceDirectionY * force * this.density;
+        
+        if (distance < maxDistance) {
+          this.x -= directionX;
+          this.y -= directionY;
+        } else {
+          if (this.x !== this.baseX) { this.x -= (this.x - this.baseX) / 10; }
+          if (this.y !== this.baseY) { this.y -= (this.y - this.baseY) / 10; }
+        }
+      } else {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x > canvas.width || this.x < 0) this.vx = -this.vx;
+        if (this.y > canvas.height || this.y < 0) this.vy = -this.vy;
+      }
+    }
+    
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
   }
 
-  resize();
-  window.addEventListener('resize', resize);
-
-  // 创建粒子
-  const count = Math.min(80, Math.floor(canvas.offsetWidth / 15));
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * canvas.offsetWidth,
-      y: Math.random() * canvas.offsetHeight,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      radius: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.5 + 0.1,
-    });
+  function initNodes() {
+    state.particles = [];
+    let num = (canvas.width * canvas.height) / 8000;
+    if (num > 100) num = 100;
+    for (let i = 0; i < num; i++) state.particles.push(new Particle());
   }
 
   function animate() {
-    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
-
-    particles.forEach((p, i) => {
-      // 移动
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // 边界反弹
-      if (p.x < 0 || p.x > canvas.offsetWidth) p.vx *= -1;
-      if (p.y < 0 || p.y > canvas.offsetHeight) p.vy *= -1;
-
-      // 绘制粒子
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(162, 155, 254, ${p.opacity})`;
-      ctx.fill();
-
-      // 绘制连线
-      for (let j = i + 1; j < particles.length; j++) {
-        const p2 = particles[j];
-        const dx = p.x - p2.x;
-        const dy = p.y - p2.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 120) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < state.particles.length; i++) {
+      state.particles[i].update();
+      state.particles[i].draw();
+      
+      for (let j = i; j < state.particles.length; j++) {
+        let dx = state.particles[i].x - state.particles[j].x;
+        let dy = state.particles[i].y - state.particles[j].y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 100) {
           ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(108, 92, 231, ${0.1 * (1 - dist / 120)})`;
-          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = `rgba(108, 92, 231, ${0.2 - distance/500})`;
+          ctx.lineWidth = 1;
+          ctx.moveTo(state.particles[i].x, state.particles[i].y);
+          ctx.lineTo(state.particles[j].x, state.particles[j].y);
           ctx.stroke();
         }
       }
-    });
-
-    animationId = requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
   }
 
-  // 仅在首页可见时运行
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animate();
-      } else {
-        cancelAnimationFrame(animationId);
-      }
-    });
-  });
-
-  observer.observe(canvas);
+  initNodes();
+  animate();
 }
