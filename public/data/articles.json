@@ -121,5 +121,23 @@
         "content": "## 场景：风机发电量数据分析\n\n假设有一组风机编号和对应的发电量数据，目标是找出发电量最高的风机。\n\n## 核心知识点\n\n### 1. 列表（List）\n\n列表是 Python 中最常用的有序数据容器：\n\n```python\nturbines = [\"WT01\", \"WT02\", \"WT03\", \"WT04\", \"WT05\"]\npower = [3200, 2850, 3400, 3100, 2850]\n```\n\n### 2. zip() 配对 + dict() 转字典\n\n`zip()` 将两个等长列表元素一一配对，`dict()` 将配对结果转为键值字典：\n\n```python\nwind_dict = dict(zip(turbines, power))\n# {'WT01': 3200, 'WT02': 2850, 'WT03': 3400, ...}\n```\n\n### 3. 字典遍历 .items()\n\n使用 `.items()` 同时获取键和值：\n\n```python\nfor turbine, gen in wind_dict.items():\n    print(f\"风机编号: {turbine}, 发电量: {gen}\")\n```\n\n### 4. sorted() + lambda 排序\n\n`sorted()` 对可迭代对象排序，`key=lambda x: x[1]` 指定按第二个元素（发电量）排序：\n\n```python\nsorted_turbines = sorted(wind_dict.items(), key=lambda x: x[1])\nmax_turbine = sorted_turbines[-1][0]  # 取最后一个（最大值）的键\n```\n\n### 5. f-string 格式化输出\n\n```python\nprint(f\"发电量最高的风机编号: {max_turbine}\")\n```\n\n## 要点总结\n\n| 函数/语法 | 作用 |\n|-----------|------|\n| `zip(a, b)` | 将两个列表按索引配对 |\n| `dict()` | 将配对元组转为字典 |\n| `.items()` | 获取字典的键值对视图 |\n| `sorted(iterable, key=...)` | 按指定规则排序 |\n| `lambda x: x[1]` | 匿名函数，取元素的第二项 |\n| `f\"...{var}\"` | 字符串插值格式化 |"
       }
     ]
+  },
+  {
+    "id": 7,
+    "title": "Python 基础：函数定义与条件分支实战",
+    "updated_at": "2026-03-27 10:43",
+    "tags": ["数据分析"],
+    "summary": "通过温度转换小工具，掌握 Python 函数定义（def）、文档字符串（docstring）、条件分支（if/elif/else）和 __name__ 模块入口的用法。",
+    "content": "## 场景：摄氏度与华氏度互转工具\n\n编写一个交互式脚本，让用户选择转换方向并输入温度值，输出结果。\n\n## 核心知识点\n\n### 1. 函数定义 def\n\n用 `def` 关键字定义函数，用 `return` 返回计算结果：\n\n```python\ndef c_to_f(c):\n    \"\"\"摄氏度转华氏度\"\"\"\n    return c * 9 / 5 + 32\n\ndef f_to_c(f):\n    \"\"\"华氏度转摄氏度\"\"\"\n    return (f - 32) * 5 / 9\n```\n\n### 2. 文档字符串 docstring\n\n函数体第一行的三引号字符串 `\"\"\"...\"\"\"` 是文档字符串，用于说明函数功能。可通过 `help(c_to_f)` 查看。\n\n### 3. input() 与类型转换\n\n`input()` 返回的始终是字符串，需要用 `float()` 转为浮点数才能参与数学运算：\n\n```python\nc = float(input(\"请输入摄氏度：\"))\n```\n\n### 4. 条件分支 if / elif / else\n\n```python\nif mode == \"1\":\n    # 摄氏转华氏\nelif mode == \"2\":\n    # 华氏转摄氏\nelse:\n    print(\"输入有误，请输入1或2\")\n```\n\n### 5. `__name__ == \"__main__\"` 入口守卫\n\n```python\nif __name__ == \"__main__\":\n    # 仅在直接运行脚本时执行，被 import 时不执行\n```\n\n这是 Python 模块化的最佳实践，确保函数定义可被其他文件复用。\n\n## 转换公式速记\n\n| 方向 | 公式 |\n|------|------|\n| 摄氏 → 华氏 | F = C × 9/5 + 32 |\n| 华氏 → 摄氏 | C = (F − 32) × 5/9 |",
+    "history": [
+      {
+        "version": "v1.0",
+        "time": "2026-03-27 10:43",
+        "description": "从温度转换脚本整理而来",
+        "title": "Python 基础：函数定义与条件分支实战",
+        "content": "## 场景：摄氏度与华氏度互转工具\n\n编写一个交互式脚本，让用户选择转换方向并输入温度值，输出结果。\n\n## 核心知识点\n\n### 1. 函数定义 def\n\n用 `def` 关键字定义函数，用 `return` 返回计算结果：\n\n```python\ndef c_to_f(c):\n    \"\"\"摄氏度转华氏度\"\"\"\n    return c * 9 / 5 + 32\n\ndef f_to_c(f):\n    \"\"\"华氏度转摄氏度\"\"\"\n    return (f - 32) * 5 / 9\n```\n\n### 2. 文档字符串 docstring\n\n函数体第一行的三引号字符串 `\"\"\"...\"\"\"` 是文档字符串，用于说明函数功能。可通过 `help(c_to_f)` 查看。\n\n### 3. input() 与类型转换\n\n`input()` 返回的始终是字符串，需要用 `float()` 转为浮点数才能参与数学运算：\n\n```python\nc = float(input(\"请输入摄氏度：\"))\n```\n\n### 4. 条件分支 if / elif / else\n\n```python\nif mode == \"1\":\n    # 摄氏转华氏\nelif mode == \"2\":\n    # 华氏转摄氏\nelse:\n    print(\"输入有误，请输入1或2\")\n```\n\n### 5. `__name__ == \"__main__\"` 入口守卫\n\n```python\nif __name__ == \"__main__\":\n    # 仅在直接运行脚本时执行，被 import 时不执行\n```\n\n这是 Python 模块化的最佳实践，确保函数定义可被其他文件复用。\n\n## 转换公式速记\n\n| 方向 | 公式 |\n|------|------|\n| 摄氏 → 华氏 | F = C × 9/5 + 32 |\n| 华氏 → 摄氏 | C = (F − 32) × 5/9 |"
+      }
+    ]
   }
 ]
+
