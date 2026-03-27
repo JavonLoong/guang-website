@@ -107,69 +107,36 @@
   },
   {
     "id": 6,
-    "title": "Python 基础：列表、字典与数据排序实战",
-    "updated_at": "2026-03-27 10:30",
-    "tags": ["数据分析"],
-    "summary": "通过风机发电量分析案例，掌握 Python 列表、字典、zip 配对、sorted 排序与 lambda 表达式的核心用法。",
-    "content": "## 场景：风机发电量数据分析\n\n假设有一组风机编号和对应的发电量数据，目标是找出发电量最高的风机。\n\n## 核心知识点\n\n### 1. 列表（List）\n\n列表是 Python 中最常用的有序数据容器：\n\n```python\nturbines = [\"WT01\", \"WT02\", \"WT03\", \"WT04\", \"WT05\"]\npower = [3200, 2850, 3400, 3100, 2850]\n```\n\n### 2. zip() 配对 + dict() 转字典\n\n`zip()` 将两个等长列表元素一一配对，`dict()` 将配对结果转为键值字典：\n\n```python\nwind_dict = dict(zip(turbines, power))\n# {'WT01': 3200, 'WT02': 2850, 'WT03': 3400, ...}\n```\n\n### 3. 字典遍历 .items()\n\n使用 `.items()` 同时获取键和值：\n\n```python\nfor turbine, gen in wind_dict.items():\n    print(f\"风机编号: {turbine}, 发电量: {gen}\")\n```\n\n### 4. sorted() + lambda 排序\n\n`sorted()` 对可迭代对象排序，`key=lambda x: x[1]` 指定按第二个元素（发电量）排序：\n\n```python\nsorted_turbines = sorted(wind_dict.items(), key=lambda x: x[1])\nmax_turbine = sorted_turbines[-1][0]  # 取最后一个（最大值）的键\n```\n\n### 5. f-string 格式化输出\n\n```python\nprint(f\"发电量最高的风机编号: {max_turbine}\")\n```\n\n## 要点总结\n\n| 函数/语法 | 作用 |\n|-----------|------|\n| `zip(a, b)` | 将两个列表按索引配对 |\n| `dict()` | 将配对元组转为字典 |\n| `.items()` | 获取字典的键值对视图 |\n| `sorted(iterable, key=...)` | 按指定规则排序 |\n| `lambda x: x[1]` | 匿名函数，取元素的第二项 |\n| `f\"...{var}\"` | 字符串插值格式化 |",
+    "title": "Python 字典基础与风机发电量案例",
+    "updated_at": "2026-03-27 16:00",
+    "tags": ["Python", "字典", "数据结构", "案例"],
+    "summary": "通过风机编号与发电量的案例，系统学习了 Python 字典的创建、遍历、排序查找最大值等常用操作，适合初学者入门和实践。",
+    "content": "## 1. 字典的创建\n\n- 字典是一种以'键-值'对形式存储数据的数据结构。\n- 可以用 dict(zip(keys, values)) 方式将两个列表合并为字典。\n\n示例：\n```python\nturbines = [\"WT01\", \"WT02\", \"WT03\", \"WT04\", \"WT05\"]\npower = [3200, 2850, 3400, 3100, 2850]\nwind_dict = dict(zip(turbines, power))\n```\n\n## 2. 字典的遍历\n\n- 使用 for key, value in dict.items() 可以遍历所有键值对。\n\n示例：\n```python\nfor turbine, gen in wind_dict.items():\n    print(f\"风机编号: {turbine}, 发电量: {gen}\")\n```\n\n## 3. 查找最大值（非max写法）\n\n- 可用 sorted(dict.items(), key=lambda x: x[1]) 按值排序，取最后一个即为最大值对应的键。\n\n示例：\n```python\nsorted_turbines = sorted(wind_dict.items(), key=lambda x: x[1])\nmax_turbine = sorted_turbines[-1][0]\nprint(f\"发电量最高的风机编号: {max_turbine}\")\n```\n\n## 4. 总结\n\n- 字典适合存储一一对应的数据关系，查找和遍历都非常高效。\n- 除了常用的 max，还可以用排序等方式查找最大值，灵活掌握多种写法有助于提升编程能力。",
     "history": [
       {
         "version": "v1.0",
-        "time": "2026-03-27 10:30",
-        "description": "从风机发电量分析脚本整理而来",
-        "title": "Python 基础：列表、字典与数据排序实战",
-        "content": "## 场景：风机发电量数据分析\n\n假设有一组风机编号和对应的发电量数据，目标是找出发电量最高的风机。\n\n## 核心知识点\n\n### 1. 列表（List）\n\n列表是 Python 中最常用的有序数据容器：\n\n```python\nturbines = [\"WT01\", \"WT02\", \"WT03\", \"WT04\", \"WT05\"]\npower = [3200, 2850, 3400, 3100, 2850]\n```\n\n### 2. zip() 配对 + dict() 转字典\n\n`zip()` 将两个等长列表元素一一配对，`dict()` 将配对结果转为键值字典：\n\n```python\nwind_dict = dict(zip(turbines, power))\n# {'WT01': 3200, 'WT02': 2850, 'WT03': 3400, ...}\n```\n\n### 3. 字典遍历 .items()\n\n使用 `.items()` 同时获取键和值：\n\n```python\nfor turbine, gen in wind_dict.items():\n    print(f\"风机编号: {turbine}, 发电量: {gen}\")\n```\n\n### 4. sorted() + lambda 排序\n\n`sorted()` 对可迭代对象排序，`key=lambda x: x[1]` 指定按第二个元素（发电量）排序：\n\n```python\nsorted_turbines = sorted(wind_dict.items(), key=lambda x: x[1])\nmax_turbine = sorted_turbines[-1][0]  # 取最后一个（最大值）的键\n```\n\n### 5. f-string 格式化输出\n\n```python\nprint(f\"发电量最高的风机编号: {max_turbine}\")\n```\n\n## 要点总结\n\n| 函数/语法 | 作用 |\n|-----------|------|\n| `zip(a, b)` | 将两个列表按索引配对 |\n| `dict()` | 将配对元组转为字典 |\n| `.items()` | 获取字典的键值对视图 |\n| `sorted(iterable, key=...)` | 按指定规则排序 |\n| `lambda x: x[1]` | 匿名函数，取元素的第二项 |\n| `f\"...{var}\"` | 字符串插值格式化 |"
+        "time": "2026-03-27 16:00",
+        "description": "初始版本",
+        "title": "Python 字典基础与风机发电量案例",
+        "content": "## 1. 字典的创建\n\n- 字典是一种以'键-值'对形式存储数据的数据结构。\n- 可以用 dict(zip(keys, values)) 方式将两个列表合并为字典。\n\n## 2. 字典的遍历\n\n- 使用 for key, value in dict.items() 可以遍历所有键值对。\n\n## 3. 查找最大值\n\n- 可用 sorted() 按值排序，取最后一个即为最大值。\n\n## 4. 总结\n\n- 字典适合存储一一对应的数据关系。"
       }
     ]
   },
   {
     "id": 7,
-    "title": "Python 基础：函数定义与条件分支实战",
-    "updated_at": "2026-03-27 10:43",
-    "tags": ["数据分析"],
-    "summary": "通过温度转换小工具，掌握 Python 函数定义（def）、文档字符串（docstring）、条件分支（if/elif/else）和 __name__ 模块入口的用法。",
-    "content": "## 场景：摄氏度与华氏度互转工具\n\n编写一个交互式脚本，让用户选择转换方向并输入温度值，输出结果。\n\n## 核心知识点\n\n### 1. 函数定义 def\n\n用 `def` 关键字定义函数，用 `return` 返回计算结果：\n\n```python\ndef c_to_f(c):\n    \"\"\"摄氏度转华氏度\"\"\"\n    return c * 9 / 5 + 32\n\ndef f_to_c(f):\n    \"\"\"华氏度转摄氏度\"\"\"\n    return (f - 32) * 5 / 9\n```\n\n### 2. 文档字符串 docstring\n\n函数体第一行的三引号字符串 `\"\"\"...\"\"\"` 是文档字符串，用于说明函数功能。可通过 `help(c_to_f)` 查看。\n\n### 3. input() 与类型转换\n\n`input()` 返回的始终是字符串，需要用 `float()` 转为浮点数才能参与数学运算：\n\n```python\nc = float(input(\"请输入摄氏度：\"))\n```\n\n### 4. 条件分支 if / elif / else\n\n```python\nif mode == \"1\":\n    # 摄氏转华氏\nelif mode == \"2\":\n    # 华氏转摄氏\nelse:\n    print(\"输入有误，请输入1或2\")\n```\n\n### 5. `__name__ == \"__main__\"` 入口守卫\n\n```python\nif __name__ == \"__main__\":\n    # 仅在直接运行脚本时执行，被 import 时不执行\n```\n\n这是 Python 模块化的最佳实践，确保函数定义可被其他文件复用。\n\n## 转换公式速记\n\n| 方向 | 公式 |\n|------|------|\n| 摄氏 → 华氏 | F = C × 9/5 + 32 |\n| 华氏 → 摄氏 | C = (F − 32) × 5/9 |",
+    "title": "n8n 工作流自动化平台：从入门到实战",
+    "updated_at": "2026-03-27 12:38",
+    "tags": ["自动化", "n8n", "工作流", "AI Agent", "低代码"],
+    "summary": "深度调研 n8n 开源工作流自动化平台，涵盖核心概念（Nodes、Triggers、Webhooks）、AI Agent 集成、自托管部署、与 Zapier/Make 的对比，以及实际应用场景。",
+    "content": "## 一、n8n 是什么？\n\nn8n（读作 \"nodemation\"）是一个**开源、可自托管的低代码工作流自动化平台**。它允许用户通过可视化拖拽界面连接不同的应用、API 和服务，实现重复性任务的自动化。\n\n**核心定位**：介于纯无代码工具（如 Zapier）和纯编程之间，提供「可视化 + 可编码」的混合模式。\n\n## 二、核心概念\n\n### 2.1 Nodes（节点）\n\nNode 是 n8n 工作流的基本构建单元，每个 Node 执行一个具体操作：\n\n- **应用节点**：与外部服务交互（Gmail、Slack、Google Sheets、GitHub 等），500+ 预置集成\n- **核心节点**：处理逻辑控制（IF 条件判断、Switch 分支、Merge 合并、Loop 循环）\n- **函数节点**：允许编写 JavaScript/Python 自定义逻辑\n- **AI Agent 节点**：集成 LLM、向量数据库、Embedding 等 AI 能力\n\n每个节点有**输入**和**输出**，数据从一个节点流向下一个节点，形成数据管道。\n\n### 2.2 Triggers（触发器）\n\n触发器是工作流的起点，决定了「什么时候开始执行」：\n\n- **Webhook 触发**：监听外部 HTTP 请求，收到请求立即执行\n- **定时触发（Cron）**：按计划执行（每小时/每天/每周）\n- **应用事件触发**：当第三方应用发生事件时触发（如收到新邮件、新表单提交）\n- **手动触发**：点击按钮手动运行，适合测试和调试\n- **表单触发**：生成一个表单页面，用户提交后触发工作流\n\n### 2.3 Webhooks（网络钩子）\n\nWebhook 是一种让外部服务主动推送数据给 n8n 的机制：\n\n1. n8n 生成唯一的 Webhook URL\n2. 外部服务配置该 URL 作为回调地址\n3. 当事件发生时，外部服务 POST 数据到该 URL\n4. n8n 接收数据并触发后续工作流\n\n**安全机制**：支持 Basic Auth、Header Auth、JWT 认证。\n\n## 三、与同类工具对比\n\n| 维度 | n8n | Zapier | Make |\n|------|-----|--------|------|\n| **开源** | ✅ 完全开源 | ❌ | ❌ |\n| **自托管** | ✅ Docker 部署 | ❌ 仅云端 | ❌ 仅云端 |\n| **价格** | 社区版免费 | 按任务计费，较贵 | 按操作计费 |\n| **代码灵活性** | JS/Python 自由编写 | 受限 | 受限 |\n| **AI 集成** | 原生 AI Agent 节点 | 有限 | 有限 |\n| **学习曲线** | 中等（需基础技术能力） | 低 | 中 |\n| **数据隐私** | 数据完全可控 | 数据在第三方 | 数据在第三方 |\n\n**结论**：如果你重视数据隐私、需要复杂逻辑、或想免费使用 → 选 n8n。\n\n## 四、AI Agent 工作流（2025 重点方向）\n\nn8n 在 2025 年全面拥抱 AI-first 策略，提供 70+ AI 节点：\n\n### 4.1 支持的 AI 能力\n- **LLM 调用**：OpenAI (GPT)、Google Gemini、Claude、Hugging Face\n- **RAG（检索增强生成）**：连接向量数据库（Pinecone、Qdrant），实现文档问答\n- **多 Agent 协作**：Retriever Agent 检索 → LLM Agent 生成 → Verifier Agent 验证\n- **工具调用**：AI Agent 可自主调用 API、查询数据库、发送邮件\n\n### 4.2 典型 AI 工作流示例\n\n**示例 1：智能客服**\n收到工单 → AI 分类意图 → 查知识库 → 生成回复 → 发送\n\n**示例 2：研究助手**\n输入问题 → 搜索多个源 → AI 摘要 → 事实核查 → 输出报告\n\n**示例 3：自动化内容创作**\n监控 RSS → 提取热点 → AI 写稿 → 审核 → 发布到 WordPress\n\n## 五、自托管部署（Docker）\n\n### 前置要求\n- Docker Engine 已安装\n- 至少 2GB RAM（建议 4GB）\n- 10GB 磁盘空间\n\n### 最简启动命令\n```bash\ndocker run -it --rm \\\n  --name n8n \\\n  -p 5678:5678 \\\n  -v n8n_data:/home/node/.n8n \\\n  docker.n8n.io/n8nio/n8n\n```\n\n启动后访问 `http://localhost:5678` 即可使用。\n\n### 生产环境建议\n- 使用 Docker Compose + PostgreSQL 做持久化存储\n- 配置 HTTPS 反向代理（Nginx/Caddy）\n- 设置 Basic Auth 或 SSO 认证\n\n## 六、实际应用场景汇总\n\n| 场景 | 工作流描述 |\n|------|----------|\n| **GitHub 自动化** | PR 创建 → 自动 Code Review → Slack 通知 |\n| **邮件处理** | 收到邮件 → AI 分类 → 自动回复/转发 |\n| **数据同步** | 数据库变更 → 同步到 Google Sheets → 生成报告 |\n| **社交媒体** | 定时抓取热点 → AI 生成内容 → 多平台发布 |\n| **财务报表** | 定时查询系统 → AI 汇总 → 生成 PDF → 邮件发送 |\n| **日程管理** | 自然语言输入 → AI 解析 → 创建日历事件 |\n\n## 七、学习路线建议\n\n1. **入门**：官网交互式教程 → 熟悉 UI 和基本节点\n2. **实战**：搭建一个「邮件通知 + Google Sheets 记录」的简单工作流\n3. **进阶**：学习 Webhook、HTTP Request 节点，连接自定义 API\n4. **AI 集成**：试用 AI Agent 节点，搭建 RAG 问答系统\n5. **生产部署**：Docker 自托管 + PostgreSQL + Nginx 反向代理\n\n## 八、关键要点总结\n\n1. n8n 是开源的 Zapier 替代品，最大优势是**可自托管**和**代码灵活性**\n2. 核心三要素：Nodes（做什么）、Triggers（什么时候做）、Webhooks（怎么接收外部数据）\n3. 2025 年重点方向是 **AI-first 自动化**，70+ AI 节点覆盖 LLM、RAG、多 Agent\n4. Docker 一行命令即可启动，上手门槛低\n5. 适合开发者和技术团队构建复杂的、数据敏感的自动化流程",
     "history": [
       {
         "version": "v1.0",
-        "time": "2026-03-27 10:43",
-        "description": "从温度转换脚本整理而来",
-        "title": "Python 基础：函数定义与条件分支实战",
-        "content": "## 场景：摄氏度与华氏度互转工具\n\n编写一个交互式脚本，让用户选择转换方向并输入温度值，输出结果。\n\n## 核心知识点\n\n### 1. 函数定义 def\n\n用 `def` 关键字定义函数，用 `return` 返回计算结果：\n\n```python\ndef c_to_f(c):\n    \"\"\"摄氏度转华氏度\"\"\"\n    return c * 9 / 5 + 32\n\ndef f_to_c(f):\n    \"\"\"华氏度转摄氏度\"\"\"\n    return (f - 32) * 5 / 9\n```\n\n### 2. 文档字符串 docstring\n\n函数体第一行的三引号字符串 `\"\"\"...\"\"\"` 是文档字符串，用于说明函数功能。可通过 `help(c_to_f)` 查看。\n\n### 3. input() 与类型转换\n\n`input()` 返回的始终是字符串，需要用 `float()` 转为浮点数才能参与数学运算：\n\n```python\nc = float(input(\"请输入摄氏度：\"))\n```\n\n### 4. 条件分支 if / elif / else\n\n```python\nif mode == \"1\":\n    # 摄氏转华氏\nelif mode == \"2\":\n    # 华氏转摄氏\nelse:\n    print(\"输入有误，请输入1或2\")\n```\n\n### 5. `__name__ == \"__main__\"` 入口守卫\n\n```python\nif __name__ == \"__main__\":\n    # 仅在直接运行脚本时执行，被 import 时不执行\n```\n\n这是 Python 模块化的最佳实践，确保函数定义可被其他文件复用。\n\n## 转换公式速记\n\n| 方向 | 公式 |\n|------|------|\n| 摄氏 → 华氏 | F = C × 9/5 + 32 |\n| 华氏 → 摄氏 | C = (F − 32) × 5/9 |"
-      }
-    ]
-  },
-  {
-    "id": 8,
-    "title": "全栈实战：从零构建个人学习网站",
-    "updated_at": "2026-03-27 11:00",
-    "tags": ["AI协同"],
-    "summary": "记录「光·学习空间」从原型搭建、GitHub Pages 部署、暗色玻璃拟态 UI 设计，到 React + Vite 现代化重构的完整开发历程与技术选型思考。",
-    "content": "## 项目概述\n\n「光 · 学习空间」是一个基于 React 19 + Vite 6 构建的个人学习笔记网站，部署在 GitHub Pages 上，经历了三次重大迭代。\n\n## 技术架构\n\n| 层级 | 选型 |\n|------|------|\n| 框架 | React 19 |\n| 构建 | Vite 6 |\n| 路由 | React Router v7 (HashRouter) |\n| 样式 | CSS Variables + Glassmorphism |\n| Markdown | react-markdown + remark-gfm |\n| 部署 | GitHub Pages (gh-pages 分支) |\n\n## 核心功能\n\n### 1. 粒子星空背景\n使用 Canvas API + `useRef` + `useEffect` 实现交互式粒子系统，鼠标靠近时粒子被引力推开：\n```javascript\nclass Particle {\n  update() {\n    let dx = mouse.x - this.x;\n    let dist = Math.sqrt(dx*dx + dy*dy);\n    if (dist < 100) {\n      this.x -= (dx/dist) * force * this.density;\n    }\n  }\n}\n```\n\n### 2. 历史版本时间轴\n每篇笔记的 `history` 数组存储多版本内容，弹窗侧边栏可点击切换查看旧版。这篇笔记本身就有 3 个版本——点击「🕒 历史版本」亲自体验！\n\n### 3. SPA 路由\n使用 `HashRouter`（而非 BrowserRouter）适配 GitHub Pages 不支持服务端路由的限制。\n\n### 4. 一键部署\n```bash\nnpm run deploy\n# predeploy 自动构建 → deploy 推送 gh-pages 分支\n```\n\n## 踩坑记录\n\n1. **DOM ID 不匹配**：重写 JS 时把 HTML 中的 `recentArticles` 写成了 `recentGrid`，导致页面全部空白且无报错（静默失败）。\n2. **PowerShell && 兼容**：`npm run deploy` 中 `&&` 链式调用 `npx` 在 Windows PowerShell 下会触发 exit code 1，拆分为 `predeploy` + `deploy` 解决。\n3. **GitHub Pages 分支**：用 `gh-pages` 工具推送到 `gh-pages` 分支后，需要在仓库 Settings → Pages 手动切换部署源分支。\n\n## 开发方法论\n\n本项目采用 **OpenSpec 规范驱动开发 (SDD)** 工作流：\n1. 撰写提案 (Proposal) → 2. 定义规范 (Source of Truth) → 3. 评审对齐 → 4. 编码实施 → 5. 验证归档",
-    "history": [
-      {
-        "version": "v1.0",
-        "time": "2026-03-26 04:30",
-        "description": "原型搭建：Vanilla HTML/CSS/JS + GitHub Pages 首次上线",
-        "title": "个人网站搭建笔记",
-        "content": "## 做了什么\n\n用纯 HTML + CSS + JavaScript 搭建了一个简单的个人学习笔记网站，数据存在 `articles.json` 里，通过 fetch 加载。\n\n## 技术要点\n\n- 纯静态页面，无框架\n- 用 `npx serve` 本地预览\n- Git 初始化 + 配置代理 + 推送到 GitHub\n- GitHub Pages 自动部署\n\n## 遇到的问题\n\n- Git push 需要配置 HTTP 代理才能连上 GitHub\n- GitHub Pages 有 CDN 缓存，更新后要 Ctrl+F5 强刷"
-      },
-      {
-        "version": "v2.0",
-        "time": "2026-03-26 07:30",
-        "description": "UI 大修：暗色玻璃拟态 + 粒子背景 + 历史版本时间轴",
-        "title": "网站升级：赛博朋克风格 + 版本追溯",
-        "content": "## 视觉升级\n\n- 全局暗色主题 (#0a0e17)\n- Glassmorphism 玻璃拟态卡片 (backdrop-filter: blur)\n- 霓虹渐变色调 (紫 #6c5ce7 / 青 #00cec9)\n- Canvas 粒子星空背景，支持鼠标交互\n\n## 功能升级\n\n- 文章详情弹窗重做\n- 新增历史版本侧边栏时间轴\n- articles.json 数据结构扩展：增加 history 数组\n- 标签系统精简为 5 个核心主题\n\n## 踩坑\n\n重写 app.js 时 DOM ID 全部写错，页面静默失败显示空白，排查了很久。"
-      },
-      {
-        "version": "v3.0",
-        "time": "2026-03-27 11:00",
-        "description": "React + Vite 全面重构，OpenSpec 规范驱动",
-        "title": "全栈实战：从零构建个人学习网站",
-        "content": "## 项目概述\n\n「光 · 学习空间」是一个基于 React 19 + Vite 6 构建的个人学习笔记网站，部署在 GitHub Pages 上，经历了三次重大迭代。\n\n## 技术架构\n\n| 层级 | 选型 |\n|------|------|\n| 框架 | React 19 |\n| 构建 | Vite 6 |\n| 路由 | React Router v7 (HashRouter) |\n| 样式 | CSS Variables + Glassmorphism |\n| Markdown | react-markdown + remark-gfm |\n| 部署 | GitHub Pages (gh-pages 分支) |\n\n## 核心功能\n\n### 1. 粒子星空背景\n使用 Canvas API + `useRef` + `useEffect` 实现交互式粒子系统。\n\n### 2. 历史版本时间轴\n每篇笔记的 `history` 数组存储多版本内容，弹窗侧边栏可点击切换查看旧版。\n\n### 3. 一键部署\n```bash\nnpm run deploy\n```\n\n## 踩坑记录\n\n1. DOM ID 不匹配导致静默失败\n2. PowerShell `&&` 与 npx 不兼容\n3. GitHub Pages 需手动切换 gh-pages 分支"
+        "time": "2026-03-27 12:38",
+        "description": "深度调研 n8n 平台，整理核心概念、AI 集成、部署方式与应用场景",
+        "title": "n8n 工作流自动化平台：从入门到实战",
+        "content": "## 一、n8n 是什么？\n\nn8n（读作 \"nodemation\"）是一个开源、可自托管的低代码工作流自动化平台。\n\n## 二、核心概念\n\n### Nodes — 工作流的基本单元\n### Triggers — 工作流的起点\n### Webhooks — 外部数据接收机制\n\n## 三、与 Zapier/Make 对比\nn8n 优势：开源、可自托管、代码灵活、AI 原生集成。\n\n## 四、AI Agent 工作流\n支持 70+ AI 节点，覆盖 LLM、RAG、多 Agent 协作。\n\n## 五、自托管部署\nDocker 一行命令启动。\n\n## 六、应用场景\n客服自动化、邮件处理、数据同步、内容创作等。"
       }
     ]
   }
 ]
-
-
