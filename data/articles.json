@@ -138,5 +138,22 @@
         "content": "## 一、n8n 是什么？\n\nn8n（读作 \"nodemation\"）是一个开源、可自托管的低代码工作流自动化平台。\n\n## 二、核心概念\n\n### Nodes — 工作流的基本单元\n### Triggers — 工作流的起点\n### Webhooks — 外部数据接收机制\n\n## 三、与 Zapier/Make 对比\nn8n 优势：开源、可自托管、代码灵活、AI 原生集成。\n\n## 四、AI Agent 工作流\n支持 70+ AI 节点，覆盖 LLM、RAG、多 Agent 协作。\n\n## 五、自托管部署\nDocker 一行命令启动。\n\n## 六、应用场景\n客服自动化、邮件处理、数据同步、内容创作等。"
       }
     ]
+  },
+  {
+    "id": 8,
+    "title": "MCP 协议：AI 的 USB-C 接口",
+    "updated_at": "2026-03-27 12:46",
+    "tags": ["AI", "MCP", "协议", "LLM", "Agent"],
+    "summary": "深度调研 Model Context Protocol (MCP)：由 Anthropic 提出的开放标准，为 AI 模型与外部工具/数据源提供统一的连接协议，类似于 AI 世界的 USB-C 接口。",
+    "content": "## 一、MCP 是什么？\n\nModel Context Protocol（MCP，模型上下文协议）是 Anthropic 于 2024 年 11 月推出的**开放标准**，旨在标准化 AI 系统（尤其是 LLM）与外部工具、数据源的交互方式。\n\n**一句话理解**：MCP 就是 AI 的 USB-C 接口 —— 一个统一的标准，让任何 AI 模型都能连接任何外部服务，无需为每个组合写定制代码。\n\n### 解决了什么问题？\n\n在 MCP 之前，每个 AI 应用要连接 N 个数据源和 M 个工具，就需要 N×M 个定制连接器。MCP 将这个 O(N×M) 问题简化为 O(N+M) —— 每个工具只需实现一次 MCP Server，每个 AI 应用只需实现一次 MCP Client。\n\n## 二、核心架构\n\nMCP 采用 **Client-Host-Server** 三层架构，灵感来自 LSP（Language Server Protocol）：\n\n### 2.1 三个角色\n\n| 角色 | 说明 | 示例 |\n|------|------|------|\n| **Host（宿主）** | 用户直接交互的 AI 应用 | Claude Desktop、IDE、聊天界面 |\n| **Client（客户端）** | 宿主内部的协议桥梁，发现并连接 Server | 内嵌在 Host 中 |\n| **Server（服务端）** | 暴露具体能力的外部服务 | 文件系统、数据库、GitHub API |\n\n### 2.2 通信协议\n\n所有通信基于 **JSON-RPC 2.0**，支持两种传输方式：\n- **stdio**：本地进程通信（适合桌面应用）\n- **HTTP + SSE**：远程服务通信（适合云端部署）\n\n一个 Host 可以同时连接多个 Server，实现能力组合。\n\n## 三、核心三要素\n\n### 3.1 Tools（工具）\n\nServer 暴露的**可执行函数**，由 AI 模型主动调用：\n- 数据库查询、API 调用、文件操作、代码执行\n- 每个 Tool 有名称、描述、输入/输出 Schema（JSON 格式）\n- **模型控制**：LLM 根据上下文自主决定调用哪个 Tool\n- 敏感操作支持人工审批（Human-in-the-loop）\n\n### 3.2 Resources（资源）\n\nServer 提供的**上下文数据**，由应用层决定如何使用：\n- 文件内容、数据库记录、API 响应、日志、截图\n- 每个 Resource 有唯一 URI 标识\n- 支持文本和二进制数据\n- **应用控制**：由 Host 应用决定注入哪些上下文\n\n### 3.3 Prompts（提示模板）\n\n可复用的指令模板，引导 AI 交互：\n- 预定义的工作流模板\n- 可参数化的提示词\n- 标准化的交互模式\n\n## 四、工作流程\n\nMCP 的典型交互流程：\n\n1. **工具发现**：LLM 查询 MCP Server，获取可用工具列表\n2. **Schema 理解**：Server 返回每个工具的输入/输出 Schema\n3. **结构化调用**：LLM 构造 JSON 请求，调用目标工具\n4. **外部处理**：Server 执行操作（查询数据库、调用 API 等）\n5. **结果返回**：Server 以标准格式返回结果\n6. **上下文整合**：LLM 将结果整合进回答\n\n## 五、实际应用场景\n\n### 5.1 编程助手（最广泛的场景）\n- Claude Desktop / Cursor / Zed 等 IDE 通过 MCP 访问代码仓库\n- 实时获取项目上下文，而非仅依赖静态训练数据\n- 自动化 PR Review：拉取变更 → AI 分析 → 生成审查意见\n\n### 5.2 自动化工作流\n| 场景 | MCP 工作流 |\n|------|----------|\n| 智能客服 | 收到工单 → 查知识库 → 生成回复 |\n| 研究助手 | 输入问题 → 搜索多源 → AI 摘要 → 输出报告 |\n| 代码重构 | 扫描仓库 → 识别热点 → 生成小 diff → 逐步重构 |\n| 数据分析 | 连接数据库 → 查询数据 → AI 生成可视化报告 |\n\n### 5.3 企业集成\n- 连接内部系统（CRM、ERP、知识库）\n- 数据不离开企业网络（自托管 Server）\n- 统一的权限管理和访问控制\n\n## 六、2025 年发展动态\n\n| 里程碑 | 说明 |\n|--------|------|\n| OpenAI / Google 采纳 | 主流 AI 厂商全面支持 MCP |\n| Microsoft 集成 | Copilot Studio、Azure AI Foundry 接入 |\n| 开源治理 | Anthropic 将 MCP 捐赠给 Linux 基金会下的 AAIF |\n| 规范更新（6月） | 新增结构化工具输出、OAuth 2.1 授权 |\n| 规范更新（11月） | 异步操作、Server 发现、标准化扩展 |\n| 生态爆发 | 数万个 MCP Server 上线，覆盖各类任务 |\n\n## 七、与类似概念的对比\n\n| 维度 | MCP | 传统 API 集成 | LangChain Tools |\n|------|-----|-------------|----------------|\n| 标准化 | ✅ 统一协议 | ❌ 各自为政 | ⚠️ 框架绑定 |\n| 跨模型 | ✅ 任何 LLM | - | ⚠️ 需适配 |\n| 动态发现 | ✅ 自动发现 | ❌ 硬编码 | ❌ 预配置 |\n| 安全机制 | ✅ OAuth 2.1 | 各异 | 依赖实现 |\n| 开源 | ✅ 开放标准 | - | ✅ |\n\n## 八、关键要点总结\n\n1. MCP 是 AI 世界的 **USB-C 接口**，解决了 AI 与外部工具的 N×M 集成难题\n2. 三层架构：Host（用户界面）→ Client（协议桥梁）→ Server（能力提供方）\n3. 核心三要素：**Tools**（AI 调用的函数）、**Resources**（上下文数据）、**Prompts**（交互模板）\n4. 基于 **JSON-RPC 2.0** 通信，灵感来自 LSP\n5. 2025 年被主流厂商全面采纳，已成为 AI Agent 生态的基础设施标准\n6. 最大价值：**写一次 Server，所有 AI 都能用；写一次 Client，连接所有工具**",
+    "history": [
+      {
+        "version": "v1.0",
+        "time": "2026-03-27 12:46",
+        "description": "深度调研 MCP 协议，整理核心概念、架构、应用场景与发展动态",
+        "title": "MCP 协议：AI 的 USB-C 接口",
+        "content": "## 一、MCP 是什么？\n\nModel Context Protocol 是 Anthropic 推出的开放标准，为 AI 与外部工具提供统一连接协议。\n\n## 二、核心架构\n\nClient-Host-Server 三层架构，基于 JSON-RPC 2.0。\n\n## 三、核心三要素\n\nTools（可执行函数）、Resources（上下文数据）、Prompts（交互模板）。\n\n## 四、应用场景\n\n编程助手、自动化工作流、企业集成。\n\n## 五、2025 动态\n\nOpenAI/Google/Microsoft 全面采纳，开源治理移交 AAIF。"
+      }
+    ]
   }
 ]
