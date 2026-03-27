@@ -6,9 +6,10 @@
   "homepage": "https://javonloong.github.io/guang-website/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:articles": "node scripts/build-articles.mjs",
+    "build": "npm run build:articles && vite build",
     "preview": "vite preview",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "gh-pages": "^6.3.0",
