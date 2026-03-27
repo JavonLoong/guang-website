@@ -2,7 +2,7 @@
   {
     "id": 0,
     "title": "模板：这里写知识点名称（如：JWT认知与实战）",
-    "updated_at": "2026-03-27 15:00",
+    "updated_at": "2026-03-27 10:00",
     "tags": [
       "模板",
       "分类标签"
@@ -12,7 +12,7 @@
     "history": [
       {
         "version": "v1.0",
-        "time": "2026-03-27 15:00",
+        "time": "2026-03-27 10:00",
         "description": "由自动化构建脚本发布",
         "title": "模板：这里写知识点名称（如：JWT认知与实战）",
         "content": "> **【一言蔽之】**\n> *(白话文环节)*\n> 想象你要进一个夜店。JWT 就像是你手腕上盖的那个荧光印章。保安（服务器）不需要翻看很厚的花名册（数据库）来找你是不是买过票，只要拿紫光灯照一下（验证签名），就知道你是 VIP 还是普通客。\n> 这个比喻要极其通俗，甚至不惜牺牲部分严谨性，目的是让完全没有基础的人建立第一印象。\n\n---\n\n## 🔬 一、 核心原理解析 (理解层)\n\n在建立直觉之后，这里开始上专业硬核内容。\n\n### 1. 专业定义\n说明它在学术界或工程界的严谨定义。\n*例如：JSON Web Token 是一个开放标准 (RFC 7519)，它定义了一种紧凑的、自包含的方式，用于作为 JSON 对象在各方之间安全地传输信息。*\n\n### 2. 第一性原理推导 / 结构拆解\n拆解它的构成。\n- **Header（头部）**：描述签名算法。\n- **Payload（负载）**：存放数据（如 UserID）。\n- **Signature（签名）**：防止被篡改的核心。\n\n（可以配合适当的加粗、表格来增强结构感）\n\n## 🛠️ 二、 工程实践指南 (实践层)\n\n理论必须落地。这里展示真实的、可复制的执行代码或操作流程。\n\n### 代码实现/操作步骤\n\n```python\n# 这里用深色代码块展示专业代码\nimport jwt\n\ndef generate_token(user_id):\n    # 示例代码\n    payload = {\"user_id\": user_id}\n    token = jwt.encode(payload, \"secret_key\", algorithm=\"HS256\")\n    return token\n```\n\n必须要解释代码里的“关键变量”是什么。不贴无法运行或缺乏上下文的死代码。\n\n## 💡 三、 避坑与进阶 (升华层)\n\n- **核心坑点**：初学者一定会踩的坑是什么？（例如：千万不要在 JWT 的 payload 里放密码，因为它是 base64 编码，可以直接解码查看到！）\n- **对比分析**：它和 Session 的本质区别是什么？\n- **边界条件**：它在什么情况下会失效或性能低下？"
@@ -118,7 +118,7 @@
   {
     "id": 6,
     "title": "Python 字典基础与风机发电量案例",
-    "updated_at": "2026-03-27 16:00",
+    "updated_at": "2026-03-27 14:00",
     "tags": [
       "Python",
       "字典",
@@ -129,7 +129,7 @@
     "history": [
       {
         "version": "v1.0",
-        "time": "2026-03-27 16:00",
+        "time": "2026-03-27 14:00",
         "description": "由自动化构建脚本发布",
         "title": "Python 字典基础与风机发电量案例",
         "content": "> **【一言蔽之】**  \n> 如果说 Python 里的列表（List）就像是一个大号的长排储物柜，你必须知道“第 3 个门”才能找到东西；那么字典（Dictionary）就是给每个物品贴上了一个专属名字。你不需要记门牌号，你只需要大喊一声“风机二号”，它就把对应的数据直接抛给你。这个名字就叫**键（Key）**，抛给你的数据就叫**值（Value）**。\n\n---\n\n## 🔬 一、 核心原理解析 (理解层)\n\n字典(`dict`) 是 Python 中极其核心的底层数据结构。\n\n### 无序却闪电般极速（哈希表）\n与列表（`[1, 2, 3]`）在内存里排着队挨个安坐不同，字典底层的实现是**哈希表（Hash Table）**。当你存入一个键（如 `\"WT02\"`）时，系统会用哈希函数直接把它算出在内存中的死胡同位置。这意味着，无论你的字典里存了 10 个风机还是 1 万个风机，查找速度几乎是常数级 $O(1)$，快若闪电。\n\n### 结构语法\n用大括号 `{}` 包裹，内部通过冒号 `:` 连接 Key 和 Value。\n`wind_dict = {\"WT01\": 3200, \"WT02\": 2850}`\n\n## 🛠️ 二、 工程实践指南 (实践层)\n\n我们在工业数据清洗时常常有两条独立的数据带，我们需要快速拼合。\n\n### 1. 缝合两条列表（拉链法 `zip`）\n假设你的系统吐出了极其原始的数据：\n```python\n# 孤零零的两个列表\nturbines = [\"WT01\", \"WT02\", \"WT03\"]\npower_output = [3200, 2850, 3400]\n\n# 教科书般的“一扯成字典”：\nwind_dict = dict(zip(turbines, power_output))\nprint(wind_dict)\n# 输出: {'WT01': 3200, 'WT02': 2850, 'WT03': 3400}\n```\n\n### 2. 在业务中找出“销冠”（排序提取）\n老板问你：究竟是那一台风机发电最多？\n不用写出极其复杂的求最大值的循环结构，用 `sorted()` 配合字典遍历最优雅：\n\n```python\n# key=lambda x: x[1] 意指按照列表第二个元素(即发电量)进行排序\n# 默认升序，最后一件就是销冠\nsorted_turbines = sorted(wind_dict.items(), key=lambda x: x[1])\nmax_turbine = sorted_turbines[-1][0]\n\nprint(f\"本月劳模风机编号为: {max_turbine}\")\n```\n\n\n## 💡 三、 避坑与进阶 (升华层)\n\n- **最大的坑：键的不可变性**：在字典里，Key 就像是人的身份证号，必须是极其严谨且不可改变的（比如字符串、整数、或者元组 Tuple）。你要是敢把一个会变动的列表（List）当成 Key，Python 就会直接甩给你一个 `TypeError: unhashable type`。\n- **找不到报错 (KeyError)**：直接按名字拿东西 `wind_dict['WT04']`，如果这个名字根本不在系统里，程序就会崩掉。真正的工程防御姿势是使用 `.get()` 方法：`wind_dict.get('WT04', 0)` —— 如果没有，就优雅地返回 0（默认值）。"
@@ -181,7 +181,7 @@
   {
     "id": 9,
     "title": "Transformer架构：注意力机制与大模型基石",
-    "updated_at": "2026-03-27 15:00",
+    "updated_at": "2026-03-27 15:30",
     "tags": [
       "深度学习",
       "NLP",
@@ -192,7 +192,7 @@
     "history": [
       {
         "version": "v1.0",
-        "time": "2026-03-27 15:00",
+        "time": "2026-03-27 15:30",
         "description": "由自动化构建脚本发布",
         "title": "Transformer架构：注意力机制与大模型基石",
         "content": "> **【一言蔽之】**\n> 想象你在参加一场几百人的鸡尾酒会。以前的算法（RNN）就像是一个老实人，必须按顺序跟每个人聊一句话，才能知道全场的八卦，而且聊到最后一个时，早就忘了前面聊了啥。\n> 而 **Transformer** 就像是一个拥有“上帝视角”的交际花，她不用按顺序聊，而是直接扫视全场（Self-Attention），一瞬间就能精准算出“谁和谁的关系最铁、谁刚说了哪句关键的话”，无论两个人在大厅的两头离得多远，她都能立刻把信息的点连成线。\n\n---\n\n## 🔬 一、 核心原理解析 (理解层)\n\n### 1. 专业定义\nTransformer 是 Google 在 2017 年论文《Attention Is All You Need》中提出的一种基于**自注意力机制（Self-Attention）**的深度学习架构。它彻底重构了之前严重依赖序列结构（如 RNN/LSTM）处理自然语言的范式，实现了完全的并行化计算，是目前包括 GPT（Generative Pre-trained Transformer）等所有通用大语言模型的核心底层架构。\n\n### 2. 第一性原理推导 / 结构拆解\nTransformer 的本质是“在上下文中寻找词与词的数学相关强度”。它的核心其实是几大组件的精妙配合：\n\n- **Embedding & Positional Encoding（词嵌入与位置编码）**\n  - **Embedding**：把人类的字词变成机器能算的数学高维向量（如将“苹果”变成一串 `[0.1, -0.4, ...]` 的数字）。\n  - **Positional Encoding**：因为 Transformer 是同时处理所有词的，没有先后顺序，所以必须给每个词挂上一个“座位号牌”，告诉模型“我在第一句”、“你在第二句”。\n\n- **Self-Attention（自注意力机制）—— 灵魂所在**\n  - **核心公式**：$Attention(Q, K, V) = softmax(\\frac{QK^T}{\\sqrt{d_k}})V$\n  - **大白话解释**：把每个词分身为三个角色（Query 提问者, Key 钥匙/特征, Value 实际内容）。词A拿着它的 Q 去跟所有其他词的 K 匹配（做点积），匹配度越高的词，在计算结果时越会吸纳它的 V（内容）。最终每个词不再是孤立的，而是融合了全句所有相关词信息的“混合体”。\n\n- **Multi-Head Attention（多头注意力）**\n  - 就像交际花不仅看“谁喜欢谁”（一个视角），还要看“谁欠谁钱”（第二个视角）、“谁是谁上司”（第三个视角）。从多个独立的数学空间去抓取特征，然后拼在一起，极大提升了表达能力。\n\n- **Feed Forward Network（前馈神经网络）**\n  - 在自注意力完成“词与词的连接”后，由于全是线性计算，必须过一层全连接网络来加入**非线性映射**，做进一步的信息提纯。\n\n## 🛠️ 二、 工程实践指南 (实践层)\n\n### 代码实现/操作步骤\n\n在今天，除了造大模型的团队，绝大多数应用层工程师不需要从 0 层用 PyTorch 手写注意力公式，而是可以直接调用 HuggingFace 的 `transformers` 库。\n\n```python\n# 这里用深色代码块展示专业代码\nfrom transformers import pipeline, AutoModelForCausalLM, AutoTokenizer\n\n# 1. 明确我们要用的功能和模型（以轻量级 gpt2 为例）\nmodel_id = \"gpt2\"\n\n# 2. 拿到对应的“词典”（Tokenizer）和“大脑”（Model）\ntokenizer = AutoTokenizer.from_pretrained(model_id)\nmodel = AutoModelForCausalLM.from_pretrained(model_id)\n\n# 3. 极简实战：让模型接着写半句话\ntext_generator = pipeline(\"text-generation\", model=model, tokenizer=tokenizer)\nresult = text_generator(\"Transformer is deeply changing our world by\", max_length=30)\n\nprint(result[0]['generated_text'])\n```\n\n**关键变量解释：**\n- **Tokenizer（分词器）**：翻译官。它负责把人类文字切片（Token）并转换为数学数字序列（因为 Transformer 里的矩阵计算只认识数字）。\n- **Model（模型架构）**：算力黑盒。内部装载了海量用 Self-Attention 练就的模型权重参数，用于根据前文吐出下一个 Token 最大的概率。\n\n## 💡 三、 避坑与进阶 (升华层)\n\n- **核心坑点：算力爆炸（$O(N^2)$ 复杂度）**。初学者跑 Transformer 架构的模型（尤其是大上下文）时极易报 OOM（内存溢出闪退）。这是因为 Self-Attention 是让序列中的**两两**元素互相计算。如果句子长度 $N$ 翻倍，计算量和显存消耗会直接翻 $4$ 倍！所以长文本处理（Long Context）一直是工程界的硬仗。\n- **对比分析（vs 传统 RNN）**：\n  - **RNN**：像秒表一样滴答滴答跑，好处是理论上能跑无限长，坏处是不能并行计算，贼慢。\n  - **Transformer**：像是一刀切下的截面图，一瞬间算完，**完全支持并行计算**（非常适合上 GPU 万卡阵列猛练），坏处是吃显存且丢失了天生的时序感（所以才需要加位置编码）。\n- **边界条件**：不要唯大模型论。对于极小量级的表格数据集或非常简单的时序预测分析任务，直接上“高射炮打蚊子”。传统的轻量级模型（如 XGBoost 或小 LSTM）往往更快、更强、且不易过拟合。"
