@@ -36,7 +36,7 @@ export default function ParticleCanvas() {
         this.baseX = this.x
         this.baseY = this.y
         this.density = Math.random() * 30 + 1
-        this.color = Math.random() > 0.5 ? 'rgba(108,92,231,0.4)' : 'rgba(0,206,201,0.4)'
+        this.color = Math.random() > 0.5 ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)'
         this.vx = (Math.random() - 0.5) * 0.5
         this.vy = (Math.random() - 0.5) * 0.5
       }
@@ -80,7 +80,7 @@ export default function ParticleCanvas() {
           let dist = Math.sqrt(dx * dx + dy * dy)
           if (dist < 100) {
             ctx.beginPath()
-            ctx.strokeStyle = `rgba(108,92,231,${0.2 - dist / 500})`
+            ctx.strokeStyle = `rgba(255,255,255,${0.03 - dist / 3000})`
             ctx.lineWidth = 1
             ctx.moveTo(ps[i].x, ps[i].y)
             ctx.lineTo(ps[j].x, ps[j].y)

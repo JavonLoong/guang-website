@@ -20,20 +20,18 @@ export default function HomePage({ articles, onOpenArticle }) {
       <section className="hero">
         <ParticleCanvas />
         <div className="hero-content">
-          <div className="hero-avatar">✨</div>
           <h1 className="hero-title">
-            你好，我是<span className="gradient-text">光</span>
+            <span className="gradient-text">光</span> 的节点字典
           </h1>
-          <p className="hero-subtitle">记录每一次学习，分享每一份知识</p>
+          <p className="hero-subtitle">Engineering · Computation · AI Agents</p>
           <div className="hero-tags">
-            <span className="hero-tag">📐 工程力学</span>
-            <span className="hero-tag">💧 流体力学</span>
-            <span className="hero-tag">🤖 AI 探索</span>
-            <span className="hero-tag">🐍 Python</span>
-            <span className="hero-tag">🎨 3D 建模</span>
+            <span className="hero-tag">参数化建模</span>
+            <span className="hero-tag">力学理论</span>
+            <span className="hero-tag">AI 智能协同</span>
+            <span className="hero-tag">工作流引擎</span>
           </div>
           <button className="hero-cta" onClick={() => navigate('/notes')}>
-            浏览我的笔记 <span>→</span>
+            进入数据库 <span>→</span>
           </button>
         </div>
         <div className="scroll-indicator">

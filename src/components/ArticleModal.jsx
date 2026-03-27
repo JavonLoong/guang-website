@@ -45,7 +45,7 @@ export default function ArticleModal({ article, onClose }) {
                 className={`modal-history-btn ${sidebarOpen ? 'active' : ''}`}
                 onClick={() => setSidebarOpen(v => !v)}
               >
-                🕒 历史版本
+                历史轨迹
               </button>
             )}
           </div>
