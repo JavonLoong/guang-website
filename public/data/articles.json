@@ -138,6 +138,38 @@
         "content": "## 场景：摄氏度与华氏度互转工具\n\n编写一个交互式脚本，让用户选择转换方向并输入温度值，输出结果。\n\n## 核心知识点\n\n### 1. 函数定义 def\n\n用 `def` 关键字定义函数，用 `return` 返回计算结果：\n\n```python\ndef c_to_f(c):\n    \"\"\"摄氏度转华氏度\"\"\"\n    return c * 9 / 5 + 32\n\ndef f_to_c(f):\n    \"\"\"华氏度转摄氏度\"\"\"\n    return (f - 32) * 5 / 9\n```\n\n### 2. 文档字符串 docstring\n\n函数体第一行的三引号字符串 `\"\"\"...\"\"\"` 是文档字符串，用于说明函数功能。可通过 `help(c_to_f)` 查看。\n\n### 3. input() 与类型转换\n\n`input()` 返回的始终是字符串，需要用 `float()` 转为浮点数才能参与数学运算：\n\n```python\nc = float(input(\"请输入摄氏度：\"))\n```\n\n### 4. 条件分支 if / elif / else\n\n```python\nif mode == \"1\":\n    # 摄氏转华氏\nelif mode == \"2\":\n    # 华氏转摄氏\nelse:\n    print(\"输入有误，请输入1或2\")\n```\n\n### 5. `__name__ == \"__main__\"` 入口守卫\n\n```python\nif __name__ == \"__main__\":\n    # 仅在直接运行脚本时执行，被 import 时不执行\n```\n\n这是 Python 模块化的最佳实践，确保函数定义可被其他文件复用。\n\n## 转换公式速记\n\n| 方向 | 公式 |\n|------|------|\n| 摄氏 → 华氏 | F = C × 9/5 + 32 |\n| 华氏 → 摄氏 | C = (F − 32) × 5/9 |"
       }
     ]
+  },
+  {
+    "id": 8,
+    "title": "全栈实战：从零构建个人学习网站",
+    "updated_at": "2026-03-27 11:00",
+    "tags": ["AI协同"],
+    "summary": "记录「光·学习空间」从原型搭建、GitHub Pages 部署、暗色玻璃拟态 UI 设计，到 React + Vite 现代化重构的完整开发历程与技术选型思考。",
+    "content": "## 项目概述\n\n「光 · 学习空间」是一个基于 React 19 + Vite 6 构建的个人学习笔记网站，部署在 GitHub Pages 上，经历了三次重大迭代。\n\n## 技术架构\n\n| 层级 | 选型 |\n|------|------|\n| 框架 | React 19 |\n| 构建 | Vite 6 |\n| 路由 | React Router v7 (HashRouter) |\n| 样式 | CSS Variables + Glassmorphism |\n| Markdown | react-markdown + remark-gfm |\n| 部署 | GitHub Pages (gh-pages 分支) |\n\n## 核心功能\n\n### 1. 粒子星空背景\n使用 Canvas API + `useRef` + `useEffect` 实现交互式粒子系统，鼠标靠近时粒子被引力推开：\n```javascript\nclass Particle {\n  update() {\n    let dx = mouse.x - this.x;\n    let dist = Math.sqrt(dx*dx + dy*dy);\n    if (dist < 100) {\n      this.x -= (dx/dist) * force * this.density;\n    }\n  }\n}\n```\n\n### 2. 历史版本时间轴\n每篇笔记的 `history` 数组存储多版本内容，弹窗侧边栏可点击切换查看旧版。这篇笔记本身就有 3 个版本——点击「🕒 历史版本」亲自体验！\n\n### 3. SPA 路由\n使用 `HashRouter`（而非 BrowserRouter）适配 GitHub Pages 不支持服务端路由的限制。\n\n### 4. 一键部署\n```bash\nnpm run deploy\n# predeploy 自动构建 → deploy 推送 gh-pages 分支\n```\n\n## 踩坑记录\n\n1. **DOM ID 不匹配**：重写 JS 时把 HTML 中的 `recentArticles` 写成了 `recentGrid`，导致页面全部空白且无报错（静默失败）。\n2. **PowerShell && 兼容**：`npm run deploy` 中 `&&` 链式调用 `npx` 在 Windows PowerShell 下会触发 exit code 1，拆分为 `predeploy` + `deploy` 解决。\n3. **GitHub Pages 分支**：用 `gh-pages` 工具推送到 `gh-pages` 分支后，需要在仓库 Settings → Pages 手动切换部署源分支。\n\n## 开发方法论\n\n本项目采用 **OpenSpec 规范驱动开发 (SDD)** 工作流：\n1. 撰写提案 (Proposal) → 2. 定义规范 (Source of Truth) → 3. 评审对齐 → 4. 编码实施 → 5. 验证归档",
+    "history": [
+      {
+        "version": "v1.0",
+        "time": "2026-03-26 04:30",
+        "description": "原型搭建：Vanilla HTML/CSS/JS + GitHub Pages 首次上线",
+        "title": "个人网站搭建笔记",
+        "content": "## 做了什么\n\n用纯 HTML + CSS + JavaScript 搭建了一个简单的个人学习笔记网站，数据存在 `articles.json` 里，通过 fetch 加载。\n\n## 技术要点\n\n- 纯静态页面，无框架\n- 用 `npx serve` 本地预览\n- Git 初始化 + 配置代理 + 推送到 GitHub\n- GitHub Pages 自动部署\n\n## 遇到的问题\n\n- Git push 需要配置 HTTP 代理才能连上 GitHub\n- GitHub Pages 有 CDN 缓存，更新后要 Ctrl+F5 强刷"
+      },
+      {
+        "version": "v2.0",
+        "time": "2026-03-26 07:30",
+        "description": "UI 大修：暗色玻璃拟态 + 粒子背景 + 历史版本时间轴",
+        "title": "网站升级：赛博朋克风格 + 版本追溯",
+        "content": "## 视觉升级\n\n- 全局暗色主题 (#0a0e17)\n- Glassmorphism 玻璃拟态卡片 (backdrop-filter: blur)\n- 霓虹渐变色调 (紫 #6c5ce7 / 青 #00cec9)\n- Canvas 粒子星空背景，支持鼠标交互\n\n## 功能升级\n\n- 文章详情弹窗重做\n- 新增历史版本侧边栏时间轴\n- articles.json 数据结构扩展：增加 history 数组\n- 标签系统精简为 5 个核心主题\n\n## 踩坑\n\n重写 app.js 时 DOM ID 全部写错，页面静默失败显示空白，排查了很久。"
+      },
+      {
+        "version": "v3.0",
+        "time": "2026-03-27 11:00",
+        "description": "React + Vite 全面重构，OpenSpec 规范驱动",
+        "title": "全栈实战：从零构建个人学习网站",
+        "content": "## 项目概述\n\n「光 · 学习空间」是一个基于 React 19 + Vite 6 构建的个人学习笔记网站，部署在 GitHub Pages 上，经历了三次重大迭代。\n\n## 技术架构\n\n| 层级 | 选型 |\n|------|------|\n| 框架 | React 19 |\n| 构建 | Vite 6 |\n| 路由 | React Router v7 (HashRouter) |\n| 样式 | CSS Variables + Glassmorphism |\n| Markdown | react-markdown + remark-gfm |\n| 部署 | GitHub Pages (gh-pages 分支) |\n\n## 核心功能\n\n### 1. 粒子星空背景\n使用 Canvas API + `useRef` + `useEffect` 实现交互式粒子系统。\n\n### 2. 历史版本时间轴\n每篇笔记的 `history` 数组存储多版本内容，弹窗侧边栏可点击切换查看旧版。\n\n### 3. 一键部署\n```bash\nnpm run deploy\n```\n\n## 踩坑记录\n\n1. DOM ID 不匹配导致静默失败\n2. PowerShell `&&` 与 npx 不兼容\n3. GitHub Pages 需手动切换 gh-pages 分支"
+      }
+    ]
   }
 ]
+
 
