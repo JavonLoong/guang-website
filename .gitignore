@@ -21,6 +21,10 @@ textbook/repo/
 textbook/text/**
 !textbook/text/README.md
 
+# 55中 本地课本（不要提交 PDF）
+55中/**/*.pdf
+55中/status.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -33,6 +33,12 @@ python3 tools/china-textbook/cli.py prepare --query "线性代数" --ocr --pages
 | `search "特征值"` | 在已抽取文本里搜 |
 | `refresh` | 从 GitHub 更新文件清单 |
 
+把人教版初中数学请到 `55中/数学/` 按年级分格：
+
+```bash
+python3 tools/china-textbook/fill_55zhong.py
+```
+
 抽取 PDF 需要：
 
 ```bash
