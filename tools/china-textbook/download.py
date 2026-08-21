@@ -33,7 +33,7 @@ def file_complete(path: Path, expected_size: int | None = None) -> bool:
     return True
 
 
-def download_file(relative_path: str, expected_size: int | None = None, timeout: int = 180) -> Path:
+def download_file(relative_path: str, expected_size: int | None = None, timeout: int = 300) -> Path:
     ensure_local_dirs()
     dest = local_pdf_path(relative_path)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -41,28 +41,32 @@ def download_file(relative_path: str, expected_size: int | None = None, timeout:
         return dest
 
     url = raw_url(relative_path)
-    request = urllib.request.Request(
-        url,
-        headers={"User-Agent": "guang-website-china-textbook-downloader"},
-    )
-    tmp = dest.with_suffix(dest.suffix + ".part")
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response, tmp.open("wb") as handle:
-            while True:
-                chunk = response.read(1024 * 256)
-                if not chunk:
-                    break
-                handle.write(chunk)
-        if expected_size and tmp.stat().st_size != expected_size:
-            raise DownloadError(
-                f"{relative_path} 下载大小不符：得到 {tmp.stat().st_size}，期望 {expected_size}"
-            )
-        tmp.replace(dest)
-    except Exception:
-        if tmp.exists():
-            tmp.unlink()
-        raise
-    return dest
+    last_error: Exception | None = None
+    for attempt in range(1, 5):
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "guang-website-china-textbook-downloader"},
+        )
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response, tmp.open("wb") as handle:
+                while True:
+                    chunk = response.read(1024 * 256)
+                    if not chunk:
+                        break
+                    handle.write(chunk)
+            if expected_size and tmp.stat().st_size != expected_size:
+                raise DownloadError(
+                    f"{relative_path} 下载大小不符：得到 {tmp.stat().st_size}，期望 {expected_size}"
+                )
+            tmp.replace(dest)
+            return dest
+        except Exception as exc:
+            last_error = exc
+            if tmp.exists():
+                tmp.unlink()
+            time.sleep(2 * attempt)
+    raise DownloadError(f"下载失败 {relative_path}: {last_error}")
 
 
 def load_status() -> dict:
