@@ -11,6 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
+__pycache__/
+*.pyc
+
+# ChinaTextbook 本地缓存：PDF、分卷、抽取正文都不要进 git
+textbook/pdfs/
+textbook/status.json
+textbook/repo/
+textbook/text/**
+!textbook/text/README.md
 
 # Editor directories and files
 .vscode/*
