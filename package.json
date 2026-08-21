@@ -9,7 +9,8 @@
     "build:articles": "node scripts/build-articles.mjs",
     "build": "npm run build:articles && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "textbook": "python3 tools/china-textbook/cli.py"
   },
   "dependencies": {
     "gh-pages": "^6.3.0",

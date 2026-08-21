@@ -1,0 +1,35 @@
+---
+description: 阅读 ChinaTextbook 教材时，先查目录、按需抽取，再读 Markdown 分片
+globs: textbook/**,tools/china-textbook/**
+alwaysApply: true
+---
+
+# ChinaTextbook 阅读方式
+
+用户提到中国教材、课本、小初高/大学 PDF、或 `TapXWorld/ChinaTextbook` 时，按下面做。不要克隆整个上游仓库（约 43GB）。
+
+## 先查清单，再动手
+
+1. 用 `tools/china-textbook/data/catalog.md` 或运行  
+   `python3 tools/china-textbook/cli.py list --query "<书名或学科>"`  
+   定位到具体一册。
+2. 只下载需要的书。多数课本是扫描件，必须加 OCR，并先限制页码：  
+   `python3 tools/china-textbook/cli.py prepare --query "<更具体的书名>" --ocr --pages 1-20`
+3. 去 `textbook/text/<原路径>/` 阅读抽取结果。先打开该目录的 `README.md`，再读对应页码的 `p0001-0015.md` 这类分片。
+
+## 严禁的低效行为
+
+- 不要 `git clone https://github.com/TapXWorld/ChinaTextbook`。
+- 不要用 Read 工具直接打开 PDF、`.pdf.1`、`.pdf.2`。
+- 不要一次把整本书 Markdown 全部读进上下文。先搜，再读命中附近的分片。
+- 不要把 `textbook/` 里的 PDF 或抽取正文提交到 git，也不要发到网站公开页面。
+
+## 搜索
+
+已抽取的文本用：
+
+```bash
+python3 tools/china-textbook/cli.py search "关键词"
+```
+
+或直接 Grep `textbook/text`。README 里写着「扫描件」且没有 `p0001-*.md` 时，先 `--ocr` 再读；不要对着空白 PDF 假装读过正文。OCR 结果会有错字，引用时以教材原页为准。
